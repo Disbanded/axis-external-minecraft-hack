@@ -1,8 +1,8 @@
 
 #include "../modules.h"
 
-double velocity::velocity_h = 1.;
-double velocity::velocity_v = 1.;
+float velocity::velocity_h = 98.f;
+float velocity::velocity_v = 100.f;
 
 void velocity::handler() {
 

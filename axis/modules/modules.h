@@ -2,7 +2,7 @@
 #include "../axis/axis.h"
 #include "../class_list/minecraft/minecraft.h"
 
-namespace aclicker {
+namespace aclicker{
 
 	extern void handler();
 	extern float cps;
@@ -21,7 +21,7 @@ namespace aim {
 namespace velocity {
 
 	extern void handler();
-	extern double velocity_h;
-	extern double velocity_v;
+	extern float velocity_h;
+	extern float velocity_v;
 
 }

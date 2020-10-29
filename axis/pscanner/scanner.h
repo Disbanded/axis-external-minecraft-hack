@@ -1,5 +1,5 @@
 
-#include "../../axis/axis.h"
+#include "../axis/axis.h"
 
 namespace scanner {
 

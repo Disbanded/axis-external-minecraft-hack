@@ -1,9 +1,9 @@
 
 #include "../modules.h"
 
-float aim::max_angle = 180.f;
-float aim::aim_speed = 10.0f;
-float aim::aim_distance = 6.f;
+float aim::max_angle = 80.f;
+float aim::aim_speed = 2.f;
+float aim::aim_distance = 3.f;
 
 void aim::handler() {
 

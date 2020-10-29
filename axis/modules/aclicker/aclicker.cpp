@@ -1,7 +1,7 @@
 
 #include "../modules.h"
 
-float aclicker::cps = 10.f;
+float aclicker::cps = 11.f;
 
 void aclicker::handler() {
 
