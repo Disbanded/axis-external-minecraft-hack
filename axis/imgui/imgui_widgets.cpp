@@ -1054,7 +1054,7 @@ bool ImGui::Checkbox(const char* label, bool* v)
 
     const float square_sz = GetFrameHeight();
     const ImVec2 pos = window->DC.CursorPos;
-    const ImRect total_bb(pos, pos + ImVec2(square_sz + (label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f), label_size.y + style.FramePadding.y * 2.0f));
+    const ImRect total_bb(pos, pos + ImVec2(square_sz + (label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f), label_size.y + style.FramePadding.y * 0.5f));
     ItemSize(total_bb, style.FramePadding.y);
     if (!ItemAdd(total_bb, id))
         return false;
@@ -1067,27 +1067,33 @@ bool ImGui::Checkbox(const char* label, bool* v)
         MarkItemEdited(id);
     }
 
+    auto color_bg = ImGui::GetColorU32(ImVec4(ImColor(33, 33, 33))); // background of slider
+    auto color_grey = ImGui::GetColorU32(ImVec4(ImColor(43, 70, 171))); // actual slider
+    auto color_black = ImGui::GetColorU32(ImVec4(ImColor(33, 33, 33))); // shade
+    auto color_blackgrey = ImGui::GetColorU32(ImVec4(ImColor(33, 33, 33))); // shade
+	
     const ImRect check_bb(pos, pos + ImVec2(square_sz, square_sz));
     RenderNavHighlight(total_bb, id);
-    RenderFrame(check_bb.Min, check_bb.Max, GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive : hovered ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg), true, style.FrameRounding);
+    RenderFrame(check_bb.Min, check_bb.Max, GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive : hovered ? ImGuiCol_FrameBgActive : ImGuiCol_FrameBg), true, style.FrameRounding);
     ImU32 check_col = GetColorU32(ImGuiCol_CheckMark);
     bool mixed_value = (window->DC.ItemFlags & ImGuiItemFlags_MixedValue) != 0;
     if (mixed_value)
     {
         // Undocumented tristate/mixed/indeterminate checkbox (#2644)
         ImVec2 pad(ImMax(1.0f, IM_FLOOR(square_sz / 3.6f)), ImMax(1.0f, IM_FLOOR(square_sz / 3.6f)));
-        window->DrawList->AddRectFilled(check_bb.Min + pad, check_bb.Max - pad, check_col, style.FrameRounding);
+        window->DrawList->AddRectFilledMultiColor(check_bb.Min + pad, check_bb.Max - pad, color_grey, color_grey, color_black, color_black); // color_bg first 2
     }
     else if (*v)
     {
         const float pad = ImMax(1.0f, IM_FLOOR(square_sz / 6.0f));
-        RenderCheckMark(window->DrawList, check_bb.Min + ImVec2(pad, pad), check_col, square_sz - pad * 2.0f);
+        window->DrawList->AddRectFilled(check_bb.Min + ImVec2(0, 0), check_bb.Max + ImVec2(0, 0), ImColor(13, 13, 13));
+        window->DrawList->AddRectFilledMultiColor(check_bb.Min + ImVec2(1, 1), check_bb.Max + ImVec2(-1, -1), color_grey, color_grey, color_grey, color_grey);
     }
 
     if (g.LogEnabled)
         LogRenderedText(&total_bb.Min, mixed_value ? "[~]" : *v ? "[x]" : "[ ]");
     if (label_size.x > 0.0f)
-        RenderText(ImVec2(check_bb.Max.x + style.ItemInnerSpacing.x, check_bb.Min.y + style.FramePadding.y), label);
+        RenderText(ImVec2(check_bb.Max.x + style.ItemInnerSpacing.x, check_bb.Min.y + style.FramePadding.y * -1.0f), label);
 
     IMGUI_TEST_ENGINE_ITEM_INFO(id, label, window->DC.ItemFlags | ImGuiItemStatusFlags_Checkable | (*v ? ImGuiItemStatusFlags_Checked : 0));
     return pressed;
@@ -2827,7 +2833,7 @@ bool ImGui::SliderScalar(const char* label, ImGuiDataType data_type, void* p_dat
     const float w = CalcItemWidth();
 
     const ImVec2 label_size = CalcTextSize(label, NULL, true);
-    const ImRect frame_bb(window->DC.CursorPos, window->DC.CursorPos + ImVec2(w, label_size.y + style.FramePadding.y * 2.0f));
+    const ImRect frame_bb(window->DC.CursorPos, window->DC.CursorPos + ImVec2(w, label_size.y + style.FramePadding.y * -1.0f));
     const ImRect total_bb(frame_bb.Min, frame_bb.Max + ImVec2(label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f, 0.0f));
 
     ItemSize(total_bb, style.FramePadding.y);
@@ -2869,10 +2875,15 @@ bool ImGui::SliderScalar(const char* label, ImGuiDataType data_type, void* p_dat
         return TempInputScalar(frame_bb, id, label, data_type, p_data, format, is_clamp_input ? p_min : NULL, is_clamp_input ? p_max : NULL);
     }
 
+    // real sliderz 
+    auto color_bg = ImGui::GetColorU32(ImVec4(ImColor(33, 33, 33))); 
+    auto color_grey = ImGui::GetColorU32(ImVec4(ImColor(43, 70, 171)));
+    auto color_black = ImGui::GetColorU32(ImVec4(ImColor(33, 33, 33)));
+    auto shade = ImGui::GetColorU32(ImVec4(ImColor(24, 41, 107)));
     // Draw frame
-    const ImU32 frame_col = GetColorU32(g.ActiveId == id ? ImGuiCol_FrameBgActive : g.HoveredId == id ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg);
+    const ImU32 frame_col = GetColorU32(g.ActiveId == id ? color_bg : g.HoveredId == id ? color_black : color_black);
     RenderNavHighlight(frame_bb, id);
-    RenderFrame(frame_bb.Min, frame_bb.Max, frame_col, true, g.Style.FrameRounding);
+    RenderFrame(frame_bb.Min + ImVec2(0, -2), frame_bb.Max + ImVec2(-2, -4), frame_col, true, g.Style.FrameRounding);
 
     // Slider behavior
     ImRect grab_bb;
@@ -2880,17 +2891,22 @@ bool ImGui::SliderScalar(const char* label, ImGuiDataType data_type, void* p_dat
     if (value_changed)
         MarkItemEdited(id);
 
-    // Render grab
-    if (grab_bb.Max.x > grab_bb.Min.x)
-        window->DrawList->AddRectFilled(grab_bb.Min, grab_bb.Max, GetColorU32(g.ActiveId == id ? ImGuiCol_SliderGrabActive : ImGuiCol_SliderGrab), style.GrabRounding);
-
-    // Display value using user-provided display format so user can add prefix/suffix/decorations to the value.
     char value_buf[64];
     const char* value_buf_end = value_buf + DataTypeFormatString(value_buf, IM_ARRAYSIZE(value_buf), data_type, p_data, format);
-    RenderTextClipped(frame_bb.Min, frame_bb.Max, value_buf, value_buf_end, NULL, ImVec2(0.5f, 0.5f));
+	
+    // Render grab
+    if (grab_bb.Max.x > grab_bb.Min.x) {
+        window->DrawList->AddRectFilledMultiColor(frame_bb.Min + ImVec2(0, -2), grab_bb.Max + ImVec2(0, -2), color_grey, color_grey, shade, shade); // Main gradient. // color_grey, color_grey, color_black, color_black
+        //if (IsItemActive()) {
+       // window->DrawList->AddText(ImVec2(grab_bb.Min.x + -6, frame_bb.Min.y + 2), ImColor(255, 255, 255, 0), value_buf, value_buf_end); // sliderz
+       // }
+         // a = 255 for now
+        //if (hovered || IsItemActive()) {
+            window->DrawList->AddText(ImVec2(grab_bb.Min.x + -6, frame_bb.Min.y + 2), ImColor(255, 255, 255, 255), value_buf, value_buf_end); // sliderz
+        }
 
     if (label_size.x > 0.0f)
-        RenderText(ImVec2(frame_bb.Max.x + style.ItemInnerSpacing.x, frame_bb.Min.y + style.FramePadding.y), label);
+        //RenderText(ImVec2(frame_bb.Max.x + style.ItemInnerSpacing.x, frame_bb.Min.y + style.FramePadding.y ), label);
 
     IMGUI_TEST_ENGINE_ITEM_INFO(id, label, window->DC.ItemFlags);
     return value_changed;
