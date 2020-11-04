@@ -8,9 +8,21 @@
 #define DIRECTINPUT_VERSION 0x0800
 
 //Others
+#include "fonts.h"
 #include "axis/axis.h"
 #include "pscanner/scanner.h"
 #include "modules/modules.h"
+
+static int menuSize[]{ 500, 320 };
+static int tab = 0;
+//bool test = false;
+bool clickertoggled = false;
+bool aimassisttoggled = false;
+bool combattoggled = false;
+bool movementtoggled = false;
+bool settingstoggled = false;
+
+bool velocitytoggled = false;
 
 // Data
 static ID3D11Device* g_pd3dDevice = NULL;
@@ -50,7 +62,11 @@ void gui()
 	ImGui_ImplWin32_Init(hwnd);
 	ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
 
-	auto default_font = io.Fonts->AddFontDefault();
+	//auto default_font = io.Fonts->AddFontDefault();
+
+	ImFont* font = io.Fonts->AddFontFromMemoryCompressedTTF(roboto_compressed_data, roboto_compressed_size, 18);
+	io.Fonts->AddFontDefault();
+	ImFont* fontBold = io.Fonts->AddFontFromMemoryCompressedTTF(robotobold_compressed_data, robotobold_compressed_size, 18);
 	/*
 	io.Fonts->AddFontFromMemoryCompressedTTF(roboto_compressed_data, roboto_compressed_size, 18);
 
@@ -70,7 +86,7 @@ void gui()
 		NULL
 	};
 
-	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	ImVec4 clear_color = ImVec4(ImColor(33,33,33));
 
 	static int menu_movement_x = 0;
 	static int menu_movement_y = 0;
@@ -157,15 +173,17 @@ void gui()
 		colors[ImGuiCol_DragDropTarget] = ImVec4(1.00f, 1.00f, 0.00f, 0.90f);
 		colors[ImGuiCol_NavHighlight] = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
 		colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
-
+		
+		ImFont* boldfonta = io.Fonts->AddFontFromFileTTF("C:\\Font\\TahomaBold.ttf", 16.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
+		
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 		{
-			ImGui::PushFont(default_font);
-			ImGui::Begin("##main", NULL, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
+			//ImGui::PushFont(default_font);
+			ImGui::Begin("##stuff", NULL, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
 			ImGui::SetWindowPos(ImVec2(0, 0));
-			ImGui::SetWindowSize(ImVec2(500, 320));
+			ImGui::SetWindowSize(ImVec2(menuSize[0], menuSize[1]));
 
 			if (ImGui::IsMouseClicked(0))
 			{
@@ -179,7 +197,7 @@ void gui()
 				menu_movement_y = CursorPosition.y - MenuPosition.top;
 			}
 
-			if ((menu_movement_y >= 0 && menu_movement_y <= 27 && menu_movement_x <= 440) && ImGui::IsMouseDragging(0))
+			if ((menu_movement_y >= 0 && menu_movement_y <= menuSize[1]/11 && menu_movement_x <= menuSize[0]/1.9) && ImGui::IsMouseDragging(0))
 			{
 				POINT cursor_position;
 
@@ -187,40 +205,174 @@ void gui()
 
 				SetWindowPos(hwnd, nullptr, cursor_position.x - menu_movement_x, cursor_position.y - menu_movement_y, 0, 0, SWP_NOSIZE);
 			}
-			ImGui::SetCursorPos(ImVec2(10, 286));
-			ImGui::Text("Axis - 1.0");
-			ImGui::SetCursorPos(ImVec2(420, 282));
-			if (ImGui::Button("Destruct"))
-			{
-				 
-				exit(0);
+			//ImGui::SetCursorPos(ImVec2(10, 286));
+			//ImGui::Text("Test");
+			//ImGui::SetCursorPos(ImVec2(420, 282));
+			//if (ImGui::Button("Destruct"))
+			//{
+			//	 
+			//	exit(0);
+			//}
+			ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(ImColor(33,33,33)));
+			ImGui::BeginChildFrame(7, ImVec2(menuSize[0], menuSize[1]/ 11)); {
+				ImGui::PushFont(fontBold);
+				ImGui::Text("A"); /*ImGui::SameLine(50); ImGui::Text("v1.0");*/ // push font later on and setcursorpos + y + 3 then it will be a little lower than the title and do sameline as First text ("hi")
+				ImGui::PopFont();
+				ImGui::SameLine();
+				ImGui::SetCursorPos(ImVec2(16, 5));
+				ImGui::Text("xis");
+				ImGui::SetCursorPos(ImVec2(270, 0));
+				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(ImColor(33, 33, 33)));
+				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(ImColor(33, 33, 33)));
+				ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(ImColor(33, 33, 33)));
+
+				// draw lines inbetween below liike set button push to a = 0.5
+
+								 //if (ac_active) {
+				 //    ac_text = "toggle off";
+				 //}
+				 //else if (!ac_active) {
+				 //    ac_text = "toggle";
+				 //}
+
+				//if (!combattoggled) // toggle button
+				//{
+				//	if (ImGui::Button("Combat", ImVec2(75, menuSize[1] / 12.9))) {
+				//		combattoggled = !combattoggled;
+				//	}
+				//}
+				//else {
+				//	ImGui::PushFont(fontBold);
+				//	if (ImGui::Button("Combat", ImVec2(75, menuSize[1] / 12.9))) {
+				//		combattoggled = !combattoggled;
+				//	}
+				//	ImGui::PopFont();
+				//}
+
+
+				ImGui::PushFont(fontBold);
+				if (ImGui::Button("Combat", ImVec2(75, menuSize[1] / 12.9))) {
+					tab = 1;
+				} ImGui::SetCursorPos(ImVec2(340, 0));
+				if (ImGui::Button("Movement", ImVec2(80, menuSize[1] / 12.9))) {
+					tab = 2;
+				} ImGui::SetCursorPos(ImVec2(420, 0));
+				if (ImGui::Button("Settings", ImVec2(70, menuSize[1] / 12.9))) {
+					tab = 3;
+				}
+				ImGui::PopFont();
+				ImGui::PopStyleColor(3);
+			} ImGui::EndChildFrame();
+			ImGui::PopStyleColor();
+
+			switch (tab) {
+			case 0:
+				break;
+			case 1:
+				ImGui::SetCursorPos(ImVec2(15, 50));
+				ImGui::BeginChild("CLICKER", ImVec2(250, 55), true); {
+					ImGui::SetCursorPos(ImVec2(5, 10));
+					ImGui::Checkbox(" Clicker", &clickertoggled);
+					ImGui::SetCursorPos(ImVec2(22, 30));
+					ImGui::PushItemWidth(220); // 240
+					ImGui::SliderFloat("###avgcps", &aclicker::cps, 10.f, 20.f, "%.1f"); // x = 5 if pushitem = 240
+					if (ImGui::IsItemHovered())
+					{
+						ImGui::SetTooltip(" CPS ");
+					}
+					ImGui::PopItemWidth();
+				} ImGui::EndChild();
+				ImGui::SetCursorPos(ImVec2(15, 120));
+				ImGui::BeginChild("AIMASSIST", ImVec2(250, 105), true); {
+					ImGui::SetCursorPos(ImVec2(5, 10));
+					ImGui::Checkbox(" Aim Assist", &aimassisttoggled);
+					ImGui::PushItemWidth(220); // 240
+					ImGui::SetCursorPos(ImVec2(22, 30));
+					ImGui::SliderFloat("###aimangle", &aim::max_angle, 45.f, 360.f, "%.0f");
+					if (ImGui::IsItemHovered()) {
+						ImGui::SetTooltip(" ANGLE ");
+					}
+				
+					ImGui::SetCursorPos(ImVec2(22, 55));
+
+					ImGui::SliderFloat("###aimrange", &aim::aim_distance, 3.f, 8.f, "%.1f");
+					if (ImGui::IsItemHovered()) {
+						ImGui::SetTooltip(" RANGE ");
+					}
+					ImGui::SetCursorPos(ImVec2(22, 80));
+
+					ImGui::SliderFloat("###aimspeed", &aim::aim_speed, 3.f, 15.f, "%.1f");
+					if (ImGui::IsItemHovered())
+					{
+						ImGui::SetTooltip(" SPEED ");
+					}
+				
+					ImGui::PopItemWidth();
+				} ImGui::EndChild();
+				break;
+			case 2:
+				ImGui::SetCursorPos(ImVec2(15, 50));
+				ImGui::BeginChild("VELOCITY", ImVec2(250, 80), true); {
+					ImGui::SetCursorPos(ImVec2(5, 10));
+					ImGui::Checkbox(" Velocity", &velocitytoggled);
+					ImGui::SetCursorPos(ImVec2(22, 30));
+					ImGui::PushItemWidth(220); // 240
+					ImGui::SliderFloat("###velocityhorizontal", &velocity::velocity_h, 0, 100.f, "%.0f");
+					if (ImGui::IsItemHovered())
+					{
+						ImGui::SetTooltip(" HORIZONTAL ");
+					}
+					ImGui::SetCursorPos(ImVec2(22, 55));
+					ImGui::SliderFloat("###velocityvertical", &velocity::velocity_v, 0, 100.f, "%.0f");
+					if (ImGui::IsItemHovered())
+					{
+						ImGui::SetTooltip(" VERTICAL ");
+					}
+				
+					ImGui::PopItemWidth();
+				} ImGui::EndChild();
+				break;
+			case 3:
+				break;
 			}
-
-			ImGui::SetCursorPos(ImVec2(20, 20));
-			ImGui::Text("AutoClicker");
-			ImGui::SetCursorPos(ImVec2(20, 38));
-			ImGui::SliderFloat("CPS", &aclicker::cps, 1.f, 20.f);
-
-			ImGui::SetCursorPos(ImVec2(20, 78));
-			ImGui::Text("AimAssist");
-			ImGui::SetCursorPos(ImVec2(20, 95));
-			ImGui::SliderFloat("Angle", &aim::max_angle, 20.f, 360.f);
-			ImGui::SetCursorPos(ImVec2(20, 121));
-			ImGui::SliderFloat("Speed", &aim::aim_speed, 1.f, 8.0f);
-			ImGui::SetCursorPos(ImVec2(20, 147));
-			ImGui::SliderFloat("Distance", &aim::aim_distance, 3.f, 6.f);
-
-			ImGui::SetCursorPos(ImVec2(20, 192));
-			ImGui::Text("Velocity");
-			ImGui::SetCursorPos(ImVec2(20, 209));
-			ImGui::SliderFloat("Horizontal", &velocity::velocity_h, 0.f, 100.f);
-			ImGui::SetCursorPos(ImVec2(20, 235));
-			ImGui::SliderFloat("Vertical", &velocity::velocity_v, 0.f, 100.f);
-
+			//ImGui::SetCursorPos(ImVec2(20, 78));
+			//ImGui::BeginChild("AIMASSIST", ImVec2(250, 130), true); {
+			//	ImGui::SetCursorPos(ImVec2(5, 5));
+			//	ImGui::Text("ANGLE");
+			//	ImGui::SetCursorPos(ImVec2(5, 25));
+			//	ImGui::PushItemWidth(240);
+			//	ImGui::SliderFloat("###aimangle", &aim::max_angle, 20.f, 360.f, "%.1f");
+			//	ImGui::PopItemWidth();
+			//	ImGui::SetCursorPos(ImVec2(5, 45));
+			//	ImGui::Text("SPEED");
+			//	ImGui::SetCursorPos(ImVec2(5, 65));
+			//	ImGui::PushItemWidth(240);
+			//	ImGui::SliderFloat("###aimspeed", &aim::aim_speed, 1.f, 100.0f, "%.1f");
+			//	ImGui::PopItemWidth();
+			//	ImGui::SetCursorPos(ImVec2(5, 85));
+			//	ImGui::Text("DISTANCE");
+			//	ImGui::SetCursorPos(ImVec2(5, 105));
+			//	ImGui::PushItemWidth(240);
+			//	ImGui::SliderFloat("###aimdistance", &aim::aim_distance, 3.f, 6.f, "%.2f");
+			//	ImGui::PopItemWidth();
+			//}ImGui::EndChild();
+			//ImGui::SetCursorPos(ImVec2(20, 187));
+			//ImGui::BeginChild("VELOCITY", ImVec2(250, 100), true); {
+			//	ImGui::SetCursorPos(ImVec2(5, 5));
+			//	ImGui::Text("HORIZONTAL");
+			//	ImGui::SetCursorPos(ImVec2(5, 25));
+			//	ImGui::SliderFloat("###horizontal", &velocity::velocity_h, 0.f, 100.f, "%.1f");
+			//	ImGui::SetCursorPos(ImVec2(5, 45));
+			//	ImGui::Text("VERTICAL");
+			//	ImGui::SetCursorPos(ImVec2(5, 65));
+			//	ImGui::SliderFloat("###vertical", &velocity::velocity_v, 0.f, 100.f, "%.1f");
+			//	//ImGui::SetCursorPos(ImVec2(5, 85));
+			//	/*ImGui::Checkbox("test", &test);*/
+			//}
 			ImGui::End();
-			ImGui::PopFont();
+			//ImGui::PopFont();
 		}
-
+		io.IniFilename = nullptr;
 		// Rendering
 		ImGui::Render();
 		g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, NULL);

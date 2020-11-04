@@ -139,5 +139,8 @@
     <ClInclude Include="imgui\imstb_truetype.h">
       <Filter>axis\imgui</Filter>
     </ClInclude>
+    <ClInclude Include="fonts.h">
+      <Filter>axis\imgui</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
