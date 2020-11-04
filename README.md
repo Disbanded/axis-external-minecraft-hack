@@ -3,7 +3,7 @@ simple external minecraft hack, works on vanilla badlion and cheatbreaker
 
 Forked from diegcrane and prismlol
 
-Changed UI completely (nicer)
+Changed UI completely
 
 Since some N00bs don't know. Compile in Release x64 and all your worries will be gone!
 
