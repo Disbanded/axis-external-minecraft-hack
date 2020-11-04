@@ -1,7 +1,7 @@
 # axis-external-minecraft-hack
 simple external minecraft hack, works on vanilla badlion and cheatbreaker
 
-Forked from Diegcrane and prismlol
+Forked from diegcrane and prismlol
 
 Changed UI completely (nicer)
 
