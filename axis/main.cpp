@@ -6,23 +6,13 @@
 #pragma comment(lib, "ntdll.lib")
 #include <d3d11.h>
 #define DIRECTINPUT_VERSION 0x0800
-
+#include <vector>
 //Others
 #include "fonts.h"
 #include "axis/axis.h"
 #include "pscanner/scanner.h"
 #include "modules/modules.h"
-
-static int menuSize[]{ 500, 320 };
-static int tab = 0;
-//bool test = false;
-bool clickertoggled = false;
-bool aimassisttoggled = false;
-bool combattoggled = false;
-bool movementtoggled = false;
-bool settingstoggled = false;
-
-bool velocitytoggled = false;
+#include "includes.h"
 
 // Data
 static ID3D11Device* g_pd3dDevice = NULL;
@@ -62,16 +52,11 @@ void gui()
 	ImGui_ImplWin32_Init(hwnd);
 	ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
 
-	//auto default_font = io.Fonts->AddFontDefault();
 
 	ImFont* font = io.Fonts->AddFontFromMemoryCompressedTTF(roboto_compressed_data, roboto_compressed_size, 18);
 	io.Fonts->AddFontDefault();
+	
 	ImFont* fontBold = io.Fonts->AddFontFromMemoryCompressedTTF(robotobold_compressed_data, robotobold_compressed_size, 18);
-	/*
-	io.Fonts->AddFontFromMemoryCompressedTTF(roboto_compressed_data, roboto_compressed_size, 18);
-
-	io.Fonts->AddFontDefault();
-	*/
 
 	io.IniFilename = NULL;
 
@@ -174,14 +159,11 @@ void gui()
 		colors[ImGuiCol_NavHighlight] = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
 		colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
 		
-		ImFont* boldfonta = io.Fonts->AddFontFromFileTTF("C:\\Font\\TahomaBold.ttf", 16.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
-		
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 		{
-			//ImGui::PushFont(default_font);
-			ImGui::Begin("##stuff", NULL, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
+			ImGui::Begin("##main", NULL, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
 			ImGui::SetWindowPos(ImVec2(0, 0));
 			ImGui::SetWindowSize(ImVec2(menuSize[0], menuSize[1]));
 
@@ -205,18 +187,22 @@ void gui()
 
 				SetWindowPos(hwnd, nullptr, cursor_position.x - menu_movement_x, cursor_position.y - menu_movement_y, 0, 0, SWP_NOSIZE);
 			}
-			//ImGui::SetCursorPos(ImVec2(10, 286));
-			//ImGui::Text("Test");
-			//ImGui::SetCursorPos(ImVec2(420, 282));
-			//if (ImGui::Button("Destruct"))
-			//{
-			//	 
-			//	exit(0);
-			//}
+			ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 2.f);
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(ImColor(158, 24, 14)));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(ImColor(158, 24, 14)));
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(ImColor(158, 24, 14)));
+			ImGui::SetCursorPos(ImVec2(menuSize[0] / 1.24, menuSize[1] / 1.15));
+			if(ImGui::Button("Destruct", ImVec2(80, menuSize[1] / 12))) { // will add later on
+				exit(0);
+			}
+			ImGui::PopStyleColor(3);
+			ImGui::PopStyleVar();
+			
+			ImGui::SetCursorPos(ImVec2(0,0));
 			ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(ImColor(33,33,33)));
 			ImGui::BeginChildFrame(7, ImVec2(menuSize[0], menuSize[1]/ 11)); {
 				ImGui::PushFont(fontBold);
-				ImGui::Text("A"); /*ImGui::SameLine(50); ImGui::Text("v1.0");*/ // push font later on and setcursorpos + y + 3 then it will be a little lower than the title and do sameline as First text ("hi")
+				ImGui::Text("A");
 				ImGui::PopFont();
 				ImGui::SameLine();
 				ImGui::SetCursorPos(ImVec2(16, 5));
@@ -225,31 +211,7 @@ void gui()
 				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(ImColor(33, 33, 33)));
 				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(ImColor(33, 33, 33)));
 				ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(ImColor(33, 33, 33)));
-
-				// draw lines inbetween below liike set button push to a = 0.5
-
-								 //if (ac_active) {
-				 //    ac_text = "toggle off";
-				 //}
-				 //else if (!ac_active) {
-				 //    ac_text = "toggle";
-				 //}
-
-				//if (!combattoggled) // toggle button
-				//{
-				//	if (ImGui::Button("Combat", ImVec2(75, menuSize[1] / 12.9))) {
-				//		combattoggled = !combattoggled;
-				//	}
-				//}
-				//else {
-				//	ImGui::PushFont(fontBold);
-				//	if (ImGui::Button("Combat", ImVec2(75, menuSize[1] / 12.9))) {
-				//		combattoggled = !combattoggled;
-				//	}
-				//	ImGui::PopFont();
-				//}
-
-
+				
 				ImGui::PushFont(fontBold);
 				if (ImGui::Button("Combat", ImVec2(75, menuSize[1] / 12.9))) {
 					tab = 1;
@@ -275,7 +237,7 @@ void gui()
 					ImGui::Checkbox(" Clicker", &clickertoggled);
 					ImGui::SetCursorPos(ImVec2(22, 30));
 					ImGui::PushItemWidth(220); // 240
-					ImGui::SliderFloat("###avgcps", &aclicker::cps, 10.f, 20.f, "%.1f"); // x = 5 if pushitem = 240
+					ImGui::SliderFloat("###avgcps", &aclicker::cps, 10.f, 20.f, "%.1f"); 
 					if (ImGui::IsItemHovered())
 					{
 						ImGui::SetTooltip(" CPS ");
@@ -292,7 +254,6 @@ void gui()
 					if (ImGui::IsItemHovered()) {
 						ImGui::SetTooltip(" ANGLE ");
 					}
-				
 					ImGui::SetCursorPos(ImVec2(22, 55));
 
 					ImGui::SliderFloat("###aimrange", &aim::aim_distance, 3.f, 8.f, "%.1f");
@@ -335,42 +296,8 @@ void gui()
 			case 3:
 				break;
 			}
-			//ImGui::SetCursorPos(ImVec2(20, 78));
-			//ImGui::BeginChild("AIMASSIST", ImVec2(250, 130), true); {
-			//	ImGui::SetCursorPos(ImVec2(5, 5));
-			//	ImGui::Text("ANGLE");
-			//	ImGui::SetCursorPos(ImVec2(5, 25));
-			//	ImGui::PushItemWidth(240);
-			//	ImGui::SliderFloat("###aimangle", &aim::max_angle, 20.f, 360.f, "%.1f");
-			//	ImGui::PopItemWidth();
-			//	ImGui::SetCursorPos(ImVec2(5, 45));
-			//	ImGui::Text("SPEED");
-			//	ImGui::SetCursorPos(ImVec2(5, 65));
-			//	ImGui::PushItemWidth(240);
-			//	ImGui::SliderFloat("###aimspeed", &aim::aim_speed, 1.f, 100.0f, "%.1f");
-			//	ImGui::PopItemWidth();
-			//	ImGui::SetCursorPos(ImVec2(5, 85));
-			//	ImGui::Text("DISTANCE");
-			//	ImGui::SetCursorPos(ImVec2(5, 105));
-			//	ImGui::PushItemWidth(240);
-			//	ImGui::SliderFloat("###aimdistance", &aim::aim_distance, 3.f, 6.f, "%.2f");
-			//	ImGui::PopItemWidth();
-			//}ImGui::EndChild();
-			//ImGui::SetCursorPos(ImVec2(20, 187));
-			//ImGui::BeginChild("VELOCITY", ImVec2(250, 100), true); {
-			//	ImGui::SetCursorPos(ImVec2(5, 5));
-			//	ImGui::Text("HORIZONTAL");
-			//	ImGui::SetCursorPos(ImVec2(5, 25));
-			//	ImGui::SliderFloat("###horizontal", &velocity::velocity_h, 0.f, 100.f, "%.1f");
-			//	ImGui::SetCursorPos(ImVec2(5, 45));
-			//	ImGui::Text("VERTICAL");
-			//	ImGui::SetCursorPos(ImVec2(5, 65));
-			//	ImGui::SliderFloat("###vertical", &velocity::velocity_v, 0.f, 100.f, "%.1f");
-			//	//ImGui::SetCursorPos(ImVec2(5, 85));
-			//	/*ImGui::Checkbox("test", &test);*/
-			//}
+
 			ImGui::End();
-			//ImGui::PopFont();
 		}
 		io.IniFilename = nullptr;
 		// Rendering
@@ -397,7 +324,6 @@ void gui()
 
 int main() 
 {
-	//Making the title blank to prevent strings and shit
 	SetConsoleTitleA(" ");
 
     if (!axis::_open_mc()) {
@@ -486,7 +412,6 @@ bool CreateDeviceD3D(HWND hWnd)
 	sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 
 	UINT createDeviceFlags = 0;
-	//createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 	D3D_FEATURE_LEVEL featureLevel;
 	const D3D_FEATURE_LEVEL featureLevelArray[2] = { D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_0, };
 	if (D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, createDeviceFlags, featureLevelArray, 2, D3D11_SDK_VERSION, &sd, &g_pSwapChain, &g_pd3dDevice, &featureLevel, &g_pd3dDeviceContext) != S_OK)
