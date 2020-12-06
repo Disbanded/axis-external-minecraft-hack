@@ -13,4 +13,4 @@ https://i.imgur.com/UFvGnF8.png
 ![image](https://i.imgur.com/UFvGnF8.png)
 
 
-- binds will be added soon
+edit: i broke a bunch of things cba to fix atm 
